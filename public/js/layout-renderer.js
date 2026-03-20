@@ -1,7 +1,13 @@
 /**
  * Layout renderer — turns a SplitLayout tree into resizable DOM panes.
  * Each leaf node gets an xterm.js terminal instance.
+ *
+ * Supports both mouse and touch for resize handles.
  */
+
+const MOBILE_BREAKPOINT_PX = 768;
+const MOBILE_FONT_SIZE = 12;
+const DESKTOP_FONT_SIZE = 13;
 
 export class LayoutRenderer {
   /** @type {Map<string, { terminal: any, fitAddon: any, wrapper: HTMLElement }>} */
@@ -40,7 +46,6 @@ export class LayoutRenderer {
    * @param {object[]} surfaces - Array of surface objects
    */
   render(container, layout, surfaces) {
-    // Preserve existing terminals where possible
     const surfaceMap = new Map(surfaces.map((s) => [s.id, s]));
     const usedSurfaceIds = new Set();
     this.#collectSurfaceIds(layout, usedSurfaceIds);
@@ -53,12 +58,10 @@ export class LayoutRenderer {
       }
     }
 
-    // Clear container and re-render
     container.innerHTML = "";
     const el = this.#renderNode(layout, surfaceMap);
     container.appendChild(el);
 
-    // Fit all terminals after DOM is laid out
     requestAnimationFrame(() => {
       this.fitAll();
     });
@@ -66,8 +69,6 @@ export class LayoutRenderer {
 
   /**
    * Write output data to a terminal.
-   * @param {string} surfaceId
-   * @param {string} data
    */
   write(surfaceId, data) {
     const entry = this.#terminals.get(surfaceId);
@@ -78,7 +79,6 @@ export class LayoutRenderer {
 
   /**
    * Focus a specific terminal.
-   * @param {string} surfaceId
    */
   focus(surfaceId) {
     this.#setFocus(surfaceId);
@@ -88,7 +88,7 @@ export class LayoutRenderer {
    * Fit all terminals to their containers.
    */
   fitAll() {
-    for (const [id, entry] of this.#terminals) {
+    for (const [, entry] of this.#terminals) {
       try {
         entry.fitAddon.fit();
       } catch {
@@ -97,16 +97,10 @@ export class LayoutRenderer {
     }
   }
 
-  /**
-   * Get the focused surface ID.
-   */
   get focusedSurfaceId() {
     return this.#focusedSurfaceId;
   }
 
-  /**
-   * Dispose of all terminals.
-   */
   dispose() {
     for (const [, entry] of this.#terminals) {
       entry.terminal.dispose();
@@ -115,6 +109,10 @@ export class LayoutRenderer {
   }
 
   // --- Internal ---
+
+  #isMobile() {
+    return window.innerWidth <= MOBILE_BREAKPOINT_PX;
+  }
 
   #collectSurfaceIds(node, set) {
     if (node.type === "leaf") {
@@ -138,13 +136,11 @@ export class LayoutRenderer {
       const child = node.children[i];
       const childEl = this.#renderNode(child, surfaceMap);
 
-      // Set flex basis from ratio
       const ratio = node.ratios[i] ?? 1 / node.children.length;
       childEl.style.flex = `${ratio} 1 0%`;
 
       container.appendChild(childEl);
 
-      // Add resize handle between children (not after the last one)
       if (i < node.children.length - 1) {
         const handle = document.createElement("div");
         handle.className = "split-handle";
@@ -207,27 +203,24 @@ export class LayoutRenderer {
     actions.append(splitH, splitV, close);
     header.append(title, actions);
 
-    // Terminal container
     const termContainer = document.createElement("div");
     termContainer.className = "terminal-container";
 
     wrapper.append(header, termContainer);
 
-    // Create or reuse terminal
     let entry = this.#terminals.get(surfaceId);
     if (!entry) {
       entry = this.#createTerminal(surfaceId, termContainer);
       this.#terminals.set(surfaceId, entry);
     } else {
-      // Re-attach existing terminal to new DOM
       entry.wrapper = wrapper;
       termContainer.appendChild(entry.terminal.element);
     }
 
-    // Focus handling
-    wrapper.addEventListener("mousedown", () => {
-      this.#setFocus(surfaceId);
-    });
+    // Focus handling — both mouse and touch
+    const focusHandler = () => this.#setFocus(surfaceId);
+    wrapper.addEventListener("mousedown", focusHandler);
+    wrapper.addEventListener("touchstart", focusHandler, { passive: true });
 
     entry.wrapper = wrapper;
 
@@ -235,12 +228,13 @@ export class LayoutRenderer {
   }
 
   #createTerminal(surfaceId, container) {
-    // xterm.js UMD globals
     const Terminal = window.Terminal;
+    const fontSize = this.#isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
+
     const terminal = new Terminal({
       cursorBlink: true,
       cursorStyle: "bar",
-      fontSize: 13,
+      fontSize,
       fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, monospace",
       lineHeight: 1.2,
       theme: {
@@ -267,8 +261,10 @@ export class LayoutRenderer {
         brightCyan: "#7dcfff",
         brightWhite: "#c0caf5",
       },
-      scrollback: 10000,
+      scrollback: 5000,
       allowProposedApi: true,
+      // Mobile: allow touch scrolling in terminal
+      overviewRulerWidth: 0,
     });
 
     const fitAddon = new window.FitAddon.FitAddon();
@@ -279,17 +275,14 @@ export class LayoutRenderer {
 
     terminal.open(container);
 
-    // Wire input
     terminal.onData((data) => {
       this.#onInput(surfaceId, data);
     });
 
-    // Wire resize
     terminal.onResize(({ cols, rows }) => {
       this.#onResize(surfaceId, cols, rows);
     });
 
-    // Auto-focus first terminal
     if (!this.#focusedSurfaceId) {
       this.#focusedSurfaceId = surfaceId;
     }
@@ -299,7 +292,6 @@ export class LayoutRenderer {
   }
 
   #setFocus(surfaceId) {
-    // Remove old focus
     if (this.#focusedSurfaceId) {
       const oldEntry = this.#terminals.get(this.#focusedSurfaceId);
       if (oldEntry?.wrapper) {
@@ -318,19 +310,28 @@ export class LayoutRenderer {
     this.#onFocus(surfaceId);
   }
 
+  /**
+   * Attach mouse + touch resize handler to a split handle.
+   */
   #attachResizeHandler(handle, container, node, index) {
     let startPos = 0;
     let startSizes = [];
     let totalSize = 0;
+    let isHorizontal = false;
+    const MIN_PANE_SIZE_PX = 50;
 
-    const onMouseDown = (e) => {
-      e.preventDefault();
+    // --- Shared logic ---
+
+    const startDrag = (clientX, clientY) => {
       handle.classList.add("dragging");
 
-      const isHorizontal = node.direction === "horizontal";
-      startPos = isHorizontal ? e.clientX : e.clientY;
+      // On mobile, CSS forces horizontal splits to become vertical
+      const computedStyle = window.getComputedStyle(container);
+      const isActuallyHorizontal = computedStyle.flexDirection === "row";
+      isHorizontal = isActuallyHorizontal;
 
-      // Get current pixel sizes of children (skip handles)
+      startPos = isHorizontal ? clientX : clientY;
+
       const children = Array.from(container.children).filter(
         (el) => !el.classList.contains("split-handle")
       );
@@ -338,26 +339,18 @@ export class LayoutRenderer {
         isHorizontal ? el.getBoundingClientRect().width : el.getBoundingClientRect().height
       );
       totalSize = startSizes.reduce((a, b) => a + b, 0);
-
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
     };
 
-    const onMouseMove = (e) => {
-      const isHorizontal = node.direction === "horizontal";
-      const currentPos = isHorizontal ? e.clientX : e.clientY;
+    const moveDrag = (clientX, clientY) => {
+      const currentPos = isHorizontal ? clientX : clientY;
       const delta = currentPos - startPos;
 
       const newSizes = [...startSizes];
-      const minSize = 50;
+      newSizes[index] = Math.max(MIN_PANE_SIZE_PX, startSizes[index] + delta);
+      newSizes[index + 1] = Math.max(MIN_PANE_SIZE_PX, startSizes[index + 1] - delta);
 
-      newSizes[index] = Math.max(minSize, startSizes[index] + delta);
-      newSizes[index + 1] = Math.max(minSize, startSizes[index + 1] - delta);
-
-      // Convert back to ratios
       const newRatios = newSizes.map((s) => s / totalSize);
 
-      // Apply immediately via flex
       const children = Array.from(container.children).filter(
         (el) => !el.classList.contains("split-handle")
       );
@@ -365,17 +358,12 @@ export class LayoutRenderer {
         children[i].style.flex = `${newRatios[i]} 1 0%`;
       }
 
-      // Fit terminals in affected panes
       this.fitAll();
     };
 
-    const onMouseUp = () => {
+    const endDrag = () => {
       handle.classList.remove("dragging");
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
 
-      // Report final ratios to server
-      const isHorizontal = node.direction === "horizontal";
       const children = Array.from(container.children).filter(
         (el) => !el.classList.contains("split-handle")
       );
@@ -385,13 +373,59 @@ export class LayoutRenderer {
       const total = sizes.reduce((a, b) => a + b, 0);
       const ratios = sizes.map((s) => s / total);
 
-      // Find a surface ID in the first child to identify this split
       const firstLeaf = children[0]?.querySelector("[data-surface-id]");
       if (firstLeaf) {
         this.#onRatiosChanged(firstLeaf.dataset.surfaceId, ratios);
       }
     };
 
+    // --- Mouse events ---
+
+    const onMouseDown = (e) => {
+      e.preventDefault();
+      startDrag(e.clientX, e.clientY);
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    };
+
+    const onMouseMove = (e) => {
+      moveDrag(e.clientX, e.clientY);
+    };
+
+    const onMouseUp = () => {
+      endDrag();
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
     handle.addEventListener("mousedown", onMouseDown);
+
+    // --- Touch events ---
+
+    const onTouchStart = (e) => {
+      if (e.touches.length !== 1) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      startDrag(touch.clientX, touch.clientY);
+      handle.addEventListener("touchmove", onTouchMove, { passive: false });
+      handle.addEventListener("touchend", onTouchEnd);
+      handle.addEventListener("touchcancel", onTouchEnd);
+    };
+
+    const onTouchMove = (e) => {
+      if (e.touches.length !== 1) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      moveDrag(touch.clientX, touch.clientY);
+    };
+
+    const onTouchEnd = () => {
+      endDrag();
+      handle.removeEventListener("touchmove", onTouchMove);
+      handle.removeEventListener("touchend", onTouchEnd);
+      handle.removeEventListener("touchcancel", onTouchEnd);
+    };
+
+    handle.addEventListener("touchstart", onTouchStart, { passive: false });
   }
 }

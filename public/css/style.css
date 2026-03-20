@@ -19,6 +19,12 @@
   --tab-inactive: #16161e;
   --resize-handle-size: 4px;
   --sidebar-width: 200px;
+  --mobile-toolbar-height: 44px;
+  /* Safe area insets for notched devices */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
 }
 
 * {
@@ -29,17 +35,28 @@
 
 html, body {
   height: 100%;
+  height: 100dvh; /* Dynamic viewport height — accounts for mobile browser chrome */
   overflow: hidden;
   background: var(--bg-primary);
-  colour: var(--text-primary);
+  color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 13px;
+  /* Prevent pull-to-refresh and overscroll bouncing */
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 #app {
   display: flex;
   height: 100%;
+  height: 100dvh;
   width: 100%;
+}
+
+/* --- Mobile-only / Desktop-only helpers --- */
+
+.mobile-only {
+  display: none !important;
 }
 
 /* --- Sidebar --- */
@@ -52,11 +69,25 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  z-index: 100;
 }
 
 #sidebar-header {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-colour);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#sidebar-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
 }
 
 .logo {
@@ -71,23 +102,31 @@ html, body {
   flex: 1;
   overflow-y: auto;
   padding: 8px 0;
+  /* Smooth scrolling on touch */
+  -webkit-overflow-scrolling: touch;
 }
 
 .workspace-tab {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: 10px 16px;
   cursor: pointer;
   color: var(--text-secondary);
   transition: all 0.15s ease;
   border-left: 2px solid transparent;
   gap: 8px;
   user-select: none;
+  /* Larger touch target */
+  min-height: 44px;
 }
 
 .workspace-tab:hover {
   background: rgba(122, 162, 247, 0.05);
   color: var(--text-primary);
+}
+
+.workspace-tab:active {
+  background: rgba(122, 162, 247, 0.15);
 }
 
 .workspace-tab.active {
@@ -117,6 +156,8 @@ html, body {
   font-size: 14px;
   line-height: 1;
   transition: opacity 0.15s, color 0.15s;
+  /* Always visible on touch — see mobile override below */
+  padding: 4px;
 }
 
 .workspace-tab:hover .tab-close {
@@ -129,20 +170,107 @@ html, body {
 
 #add-workspace {
   margin: 8px 16px 12px;
-  padding: 6px;
+  padding: 10px;
   background: transparent;
   border: 1px dashed var(--border-colour);
   color: var(--text-muted);
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 13px;
   transition: all 0.15s;
+  min-height: 44px;
 }
 
 #add-workspace:hover {
   border-color: var(--accent);
   color: var(--accent);
   background: rgba(122, 162, 247, 0.05);
+}
+
+#add-workspace:active {
+  background: rgba(122, 162, 247, 0.15);
+}
+
+/* --- Sidebar overlay backdrop (mobile) --- */
+
+#sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+/* --- Main wrapper --- */
+
+#main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* --- Mobile toolbar (hidden on desktop) --- */
+
+#mobile-toolbar {
+  display: none;
+}
+
+/* --- Actions menu (mobile) --- */
+
+#actions-menu {
+  position: absolute;
+  top: var(--mobile-toolbar-height);
+  right: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-colour);
+  border-radius: 8px;
+  padding: 4px 0;
+  z-index: 50;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+#actions-menu.hidden {
+  display: none;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  min-height: 44px;
+}
+
+.action-item:active {
+  background: rgba(122, 162, 247, 0.1);
+}
+
+.action-item.action-danger {
+  color: var(--danger);
+}
+
+.action-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.action-divider {
+  border: none;
+  border-top: 1px solid var(--border-colour);
+  margin: 4px 0;
 }
 
 /* --- Main workspace area --- */
@@ -185,6 +313,14 @@ html, body {
   background: var(--border-colour);
   z-index: 10;
   transition: background 0.15s;
+  /* Touch-friendly: larger invisible hit area */
+  position: relative;
+}
+
+.split-handle::after {
+  content: "";
+  position: absolute;
+  z-index: 11;
 }
 
 .split-handle:hover,
@@ -197,9 +333,23 @@ html, body {
   cursor: col-resize;
 }
 
+.split-container.horizontal > .split-handle::after {
+  top: 0;
+  bottom: 0;
+  left: -8px;
+  right: -8px;
+}
+
 .split-container.vertical > .split-handle {
   height: var(--resize-handle-size);
   cursor: row-resize;
+}
+
+.split-container.vertical > .split-handle::after {
+  left: 0;
+  right: 0;
+  top: -8px;
+  bottom: -8px;
 }
 
 /* --- Terminal surface --- */
@@ -211,14 +361,10 @@ html, body {
   min-height: 30px;
 }
 
-.surface-wrapper.focused {
-  /* Subtle highlight on the focused pane */
-}
-
 .surface-wrapper .surface-header {
   display: flex;
   align-items: center;
-  height: 24px;
+  height: 28px;
   padding: 0 8px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-colour);
@@ -252,10 +398,10 @@ html, body {
 
 .surface-wrapper .surface-action {
   cursor: pointer;
-  padding: 1px 4px;
+  padding: 2px 6px;
   border-radius: 2px;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 12px;
   transition: color 0.15s, background 0.15s;
 }
 
@@ -266,7 +412,7 @@ html, body {
 
 .surface-wrapper .terminal-container {
   position: absolute;
-  top: 24px;
+  top: 28px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -301,10 +447,260 @@ html, body {
   background: var(--text-muted);
 }
 
-/* --- Responsive: hide sidebar on narrow screens --- */
+/* ============================================================
+   MOBILE STYLES (< 768px)
+   ============================================================ */
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  :root {
+    --resize-handle-size: 6px;
+  }
+
+  .mobile-only {
+    display: flex !important;
+  }
+
+  /* --- Sidebar becomes a slide-over drawer --- */
+
   #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    min-width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: var(--sat);
+    padding-bottom: var(--sab);
+    box-shadow: none;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+
+  #sidebar-backdrop.visible {
+    display: block;
+  }
+
+  /* Larger touch targets for tabs */
+  .workspace-tab {
+    padding: 12px 16px;
+    min-height: 48px;
+  }
+
+  .workspace-tab .tab-close {
+    opacity: 0.6;
+    padding: 8px;
+    font-size: 16px;
+  }
+
+  .workspace-tab .tab-name {
+    font-size: 15px;
+  }
+
+  .workspace-tab .tab-index {
+    font-size: 13px;
+  }
+
+  #add-workspace {
+    font-size: 15px;
+    min-height: 48px;
+    margin-bottom: calc(12px + var(--sab));
+  }
+
+  /* --- Mobile toolbar --- */
+
+  #mobile-toolbar {
+    display: flex;
+    align-items: center;
+    height: var(--mobile-toolbar-height);
+    min-height: var(--mobile-toolbar-height);
+    padding: 0 4px;
+    padding-top: var(--sat);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-colour);
+    gap: 4px;
+    z-index: 20;
+    /* Adjust height to include safe area */
+    height: calc(var(--mobile-toolbar-height) + var(--sat));
+  }
+
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 36px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .toolbar-btn:active {
+    background: rgba(122, 162, 247, 0.15);
+    color: var(--text-primary);
+  }
+
+  .toolbar-title {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 4px;
+  }
+
+  /* --- Surface tab switcher (mobile) --- */
+
+  #toolbar-surface-switcher {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .surface-pip {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+    /* Larger touch target via padding */
+    padding: 0;
+    border: 6px solid transparent;
+    box-sizing: content-box;
+  }
+
+  .surface-pip.active {
+    background: var(--accent);
+    transform: scale(1.2);
+  }
+
+  .surface-pip:active {
+    background: var(--accent-hover);
+  }
+
+  /* --- Mobile surface header --- */
+
+  .surface-wrapper .surface-header {
+    height: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+  }
+
+  .surface-wrapper .terminal-container {
+    top: 0;
+  }
+
+  /* --- Mobile split behaviour: stack vertically on narrow screens --- */
+
+  .split-container.horizontal {
+    flex-direction: column;
+  }
+
+  .split-container.horizontal > .split-handle {
+    width: auto;
+    height: var(--resize-handle-size);
+    cursor: row-resize;
+  }
+
+  .split-container.horizontal > .split-handle::after {
+    top: -8px;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+  }
+
+  /* --- Actions menu positioning --- */
+
+  #actions-menu {
+    top: calc(var(--mobile-toolbar-height) + var(--sat) + 4px);
+    right: 8px;
+  }
+
+  /* --- Adjust workspace container for safe areas --- */
+
+  #workspace-container {
+    padding-bottom: var(--sab);
+  }
+}
+
+/* ============================================================
+   SMALL MOBILE STYLES (< 480px)
+   — Single pane view with swipe between surfaces
+   ============================================================ */
+
+@media (max-width: 480px) {
+  /* On very small screens, show only the focused pane */
+  body.mobile-single-pane .split-container {
+    flex-direction: column;
+  }
+
+  body.mobile-single-pane .split-container > .surface-wrapper {
     display: none;
+  }
+
+  body.mobile-single-pane .split-container > .surface-wrapper.mobile-visible {
+    display: block;
+    flex: 1 1 100% !important;
+  }
+
+  body.mobile-single-pane .split-container > .split-handle {
+    display: none;
+  }
+
+  /* Nested splits — flatten them */
+  body.mobile-single-pane .split-container > .split-container {
+    display: none;
+  }
+
+  body.mobile-single-pane .split-container > .split-container.mobile-visible {
+    display: flex;
+    flex: 1 1 100% !important;
+  }
+}
+
+/* ============================================================
+   LANDSCAPE MOBILE — tighter spacing
+   ============================================================ */
+
+@media (max-height: 500px) {
+  :root {
+    --mobile-toolbar-height: 36px;
+  }
+
+  .toolbar-btn {
+    height: 30px;
+    width: 36px;
+  }
+
+  .toolbar-title {
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   TABLET STYLES (768px - 1024px)
+   ============================================================ */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --sidebar-width: 180px;
+    --resize-handle-size: 6px;
+  }
+
+  .surface-wrapper .surface-action {
+    padding: 4px 8px;
+    font-size: 13px;
   }
 }
