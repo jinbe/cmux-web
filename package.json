@@ -1,10 +1,10 @@
 {
-  "name": "moravec",
+  "name": "cmux-web",
   "version": "0.1.0",
   "description": "A web-based terminal multiplexer — cmux for the browser",
   "type": "module",
   "bin": {
-    "moravec": "./dist/cli/index.js"
+    "cmux-web": "./dist/cli/index.js"
   },
   "scripts": {
     "build": "tsx scripts/build.ts",

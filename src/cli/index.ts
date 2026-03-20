@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Moravec CLI — cmux-compatible command-line interface.
+ * cmux-web CLI — cmux-compatible command-line interface.
  *
  * Controls workspaces, surfaces, and splits via the Unix domain socket.
  * Mirrors cmux's CLI surface so existing scripts and integrations work.
@@ -12,7 +12,7 @@ import { request } from "./client.js";
 const program = new Command();
 
 program
-  .name("moravec")
+  .name("cmux-web")
   .description("Web-based terminal multiplexer — cmux for the browser")
   .version("0.1.0");
 
@@ -147,7 +147,7 @@ program
 
 program
   .command("ping")
-  .description("Check if moravec server is running")
+  .description("Check if cmux-web server is running")
   .action(async () => {
     const result = await request("system.ping");
     console.log(`pong (v${result.version})`);

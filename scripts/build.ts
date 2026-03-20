@@ -1,5 +1,5 @@
 /**
- * Build script for moravec server + CLI.
+ * Build script for cmux-web server + CLI.
  * Uses esbuild to compile TypeScript to ESM.
  */
 

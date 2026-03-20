@@ -1,4 +1,4 @@
-# moravec
+# cmux-web
 
 A web-based terminal multiplexer — cmux for the browser.
 
@@ -33,16 +33,27 @@ Then open http://localhost:7681 in your browser.
 │  │  PTY 1  │  │  PTY 2  │  ...     │
 │  └─────────┘  └─────────┘          │
 │                                     │
-│  CLI Socket (/tmp/moravec.sock)     │
+│  CLI Socket (/tmp/cmux-web.sock)    │
 └─────────────────────────────────────┘
 ```
 
 ### Components
 
 - **Server** (`src/server/`) — Express + WebSocket server, PTY manager, session manager
-- **Client** (`public/`) — Vanilla JS with xterm.js, split layout renderer
+- **Client** (`public/`) — Vanilla JS with xterm.js, split layout renderer, mobile-friendly
 - **CLI** (`src/cli/`) — Commander-based CLI that talks to the Unix domain socket
 - **Shared** (`src/shared/`) — Protocol types shared between server and CLI
+
+## Mobile Support
+
+Works on phones and tablets out of the box:
+
+- **Slide-over sidebar** — swipe right from the left edge to open
+- **Single-pane mode** on small screens with swipe between surfaces
+- **Touch-draggable** resize handles
+- **Mobile toolbar** with workspace name, surface pips, and actions menu
+- **Safe area** support for notched devices
+- **PWA-ready** — add to home screen for a native app feel
 
 ## Keyboard Shortcuts
 
@@ -53,10 +64,11 @@ Then open http://localhost:7681 in your browser.
 | `Ctrl+Shift+D` | Split right |
 | `Ctrl+Shift+E` | Split down |
 | `Ctrl+Shift+W` | Close focused surface |
+| `Escape` | Close sidebar / actions menu |
 
 ## CLI Usage
 
-The CLI talks to the moravec server via a Unix domain socket at `/tmp/moravec.sock`, using the same JSON protocol as cmux v2.
+The CLI talks to the cmux-web server via a Unix domain socket at `/tmp/cmux-web.sock`, using the same JSON protocol as cmux v2.
 
 ```bash
 # Check server is running
@@ -88,18 +100,14 @@ The CLI socket speaks the same newline-delimited JSON protocol as cmux v2:
 {"id":"1","ok":true,"result":{"workspaces":[...]}}
 ```
 
-Existing cmux integrations (like pi-cmux) can be adapted to talk to moravec by pointing `CMUX_SOCKET_PATH` at `/tmp/moravec.sock` (or `MORAVEC_SOCKET_PATH`).
+Existing cmux integrations (like pi-cmux) can be adapted to talk to cmux-web by pointing `CMUX_SOCKET_PATH` at `/tmp/cmux-web.sock` (or `CMUX_WEB_SOCKET_PATH`).
 
 ## Configuration
 
 | Environment Variable | Default | Description |
 |---|---|---|
-| `MORAVEC_PORT` | `7681` | HTTP/WebSocket server port |
-| `MORAVEC_SOCKET_PATH` | `/tmp/moravec.sock` | CLI control socket path |
-
-## Named After
-
-[Hans Moravec](https://en.wikipedia.org/wiki/Hans_Moravec) — roboticist and futurist who wrote about the relationship between humans and machines.
+| `CMUX_WEB_PORT` | `7681` | HTTP/WebSocket server port |
+| `CMUX_WEB_SOCKET_PATH` | `/tmp/cmux-web.sock` | CLI control socket path |
 
 ## Licence
 

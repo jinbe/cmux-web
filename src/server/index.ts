@@ -1,5 +1,5 @@
 /**
- * Moravec server entry point.
+ * cmux-web server entry point.
  *
  * Starts:
  * 1. HTTP server serving the web UI
@@ -19,8 +19,8 @@ import { DEFAULT_PORT, DEFAULT_SOCKET_PATH } from "../shared/protocol.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const PORT = parseInt(process.env.MORAVEC_PORT ?? String(DEFAULT_PORT), 10);
-const SOCKET_PATH = process.env.MORAVEC_SOCKET_PATH ?? DEFAULT_SOCKET_PATH;
+const PORT = parseInt(process.env.CMUX_WEB_PORT ?? String(DEFAULT_PORT), 10);
+const SOCKET_PATH = process.env.CMUX_WEB_SOCKET_PATH ?? DEFAULT_SOCKET_PATH;
 
 async function main(): Promise<void> {
   const sessions = new SessionManager();
@@ -29,7 +29,7 @@ async function main(): Promise<void> {
   // Create the initial workspace
   const { workspace, surface } = sessions.createWorkspace("Default");
   ptys.spawn(surface.id, { cols: surface.cols, rows: surface.rows });
-  console.log(`[moravec] Created initial workspace "${workspace.name}" (${workspace.id})`);
+  console.log(`[cmux-web] Created initial workspace "${workspace.name}" (${workspace.id})`);
 
   // HTTP server with static file serving
   const app = express();
@@ -51,17 +51,17 @@ async function main(): Promise<void> {
   await cliSocket.start();
 
   // Set env var so child processes can find the socket
-  process.env.MORAVEC_SOCKET_PATH = cliSocket.path;
+  process.env.CMUX_WEB_SOCKET_PATH = cliSocket.path;
 
   // Start HTTP server
   httpServer.listen(PORT, () => {
-    console.log(`[moravec] Web UI:  http://localhost:${PORT}`);
-    console.log(`[moravec] Socket:  ${cliSocket.path}`);
+    console.log(`[cmux-web] Web UI:  http://localhost:${PORT}`);
+    console.log(`[cmux-web] Socket:  ${cliSocket.path}`);
   });
 
   // Graceful shutdown
   const shutdown = (): void => {
-    console.log("\n[moravec] Shutting down...");
+    console.log("\n[cmux-web] Shutting down...");
     ptys.killAll();
     cliSocket.stop();
     httpServer.close();
@@ -73,6 +73,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  console.error("[moravec] Fatal:", err);
+  console.error("[cmux-web] Fatal:", err);
   process.exit(1);
 });

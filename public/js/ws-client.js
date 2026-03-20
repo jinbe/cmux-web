@@ -1,5 +1,5 @@
 /**
- * WebSocket client for moravec.
+ * WebSocket client for cmux-web.
  * Manages connection, reconnection, and message routing.
  */
 
@@ -32,7 +32,7 @@ export class WsClient {
 
       this.#ws.onopen = () => {
         this.#connected = true;
-        console.log("[moravec] WebSocket connected");
+        console.log("[cmux-web] WebSocket connected");
         resolve();
       };
 
@@ -42,12 +42,12 @@ export class WsClient {
 
       this.#ws.onclose = () => {
         this.#connected = false;
-        console.log("[moravec] WebSocket disconnected, reconnecting...");
+        console.log("[cmux-web] WebSocket disconnected, reconnecting...");
         this.#scheduleReconnect();
       };
 
       this.#ws.onerror = (err) => {
-        console.error("[moravec] WebSocket error:", err);
+        console.error("[cmux-web] WebSocket error:", err);
         if (!this.#connected) reject(err);
       };
     });
@@ -129,7 +129,7 @@ export class WsClient {
       try {
         cb(msg);
       } catch (err) {
-        console.error("[moravec] Listener error:", err);
+        console.error("[cmux-web] Listener error:", err);
       }
     }
   }

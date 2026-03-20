@@ -30,7 +30,7 @@ export class PtyManager extends EventEmitter {
 
     const env: Record<string, string> = {
       ...process.env as Record<string, string>,
-      MORAVEC_SURFACE_ID: surfaceId,
+      CMUX_WEB_SURFACE_ID: surfaceId,
       TERM: "xterm-256color",
       COLORTERM: "truecolor",
     };

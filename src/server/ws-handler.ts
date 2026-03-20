@@ -45,7 +45,7 @@ export class WsHandler {
 
   private handleConnection(ws: WebSocket, _req: IncomingMessage): void {
     this.clients.add(ws);
-    console.log(`[moravec] WebSocket client connected (${this.clients.size} total)`);
+    console.log(`[cmux-web] WebSocket client connected (${this.clients.size} total)`);
 
     // Send initial state sync
     const syncMessage: ServerMessage = {
@@ -60,17 +60,17 @@ export class WsHandler {
         const msg: ClientMessage = JSON.parse(raw.toString());
         this.handleMessage(ws, msg);
       } catch (err: any) {
-        console.error("[moravec] Invalid message:", err.message);
+        console.error("[cmux-web] Invalid message:", err.message);
       }
     });
 
     ws.on("close", () => {
       this.clients.delete(ws);
-      console.log(`[moravec] WebSocket client disconnected (${this.clients.size} total)`);
+      console.log(`[cmux-web] WebSocket client disconnected (${this.clients.size} total)`);
     });
 
     ws.on("error", (err) => {
-      console.error("[moravec] WebSocket error:", err.message);
+      console.error("[cmux-web] WebSocket error:", err.message);
       this.clients.delete(ws);
     });
   }

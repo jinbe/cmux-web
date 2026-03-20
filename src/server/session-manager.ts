@@ -1,29 +1,29 @@
 /**
  * Session manager — tracks workspaces, surfaces, and layout state.
- * This is the central state store for the moravec server.
+ * This is the central state store for the cmux-web server.
  */
 
 import { v4 as uuid } from "uuid";
 import type {
-  MoravecWorkspace,
-  MoravecSurface,
+  CmuxWebWorkspace,
+  CmuxWebSurface,
   SplitLayout,
 } from "../shared/protocol.js";
 
 export class SessionManager {
-  private workspaces = new Map<string, MoravecWorkspace>();
-  private surfaces = new Map<string, MoravecSurface>();
+  private workspaces = new Map<string, CmuxWebWorkspace>();
+  private surfaces = new Map<string, CmuxWebSurface>();
   private activeWorkspaceId: string | null = null;
 
   /**
    * Create a new workspace with a single surface.
    */
-  createWorkspace(name?: string): { workspace: MoravecWorkspace; surface: MoravecSurface } {
+  createWorkspace(name?: string): { workspace: CmuxWebWorkspace; surface: CmuxWebSurface } {
     const workspaceId = uuid();
     const surfaceId = uuid();
     const now = Date.now();
 
-    const surface: MoravecSurface = {
+    const surface: CmuxWebSurface = {
       id: surfaceId,
       workspaceId,
       title: "shell",
@@ -33,7 +33,7 @@ export class SessionManager {
       createdAt: now,
     };
 
-    const workspace: MoravecWorkspace = {
+    const workspace: CmuxWebWorkspace = {
       id: workspaceId,
       name: name ?? `Workspace ${this.workspaces.size + 1}`,
       surfaces: [surface],
@@ -57,7 +57,7 @@ export class SessionManager {
   splitSurface(
     surfaceId: string,
     direction: "right" | "down"
-  ): { surface: MoravecSurface; workspace: MoravecWorkspace } | null {
+  ): { surface: CmuxWebSurface; workspace: CmuxWebWorkspace } | null {
     const existing = this.surfaces.get(surfaceId);
     if (!existing) return null;
 
@@ -65,7 +65,7 @@ export class SessionManager {
     if (!workspace) return null;
 
     const newSurfaceId = uuid();
-    const newSurface: MoravecSurface = {
+    const newSurface: CmuxWebSurface = {
       id: newSurfaceId,
       workspaceId: workspace.id,
       title: "shell",
@@ -95,7 +95,7 @@ export class SessionManager {
   /**
    * Close a surface and update layout.
    */
-  closeSurface(surfaceId: string): { workspace: MoravecWorkspace; removed: boolean } | null {
+  closeSurface(surfaceId: string): { workspace: CmuxWebWorkspace; removed: boolean } | null {
     const surface = this.surfaces.get(surfaceId);
     if (!surface) return null;
 
@@ -119,7 +119,7 @@ export class SessionManager {
   /**
    * Close an entire workspace.
    */
-  closeWorkspace(workspaceId: string): MoravecWorkspace | null {
+  closeWorkspace(workspaceId: string): CmuxWebWorkspace | null {
     const workspace = this.workspaces.get(workspaceId);
     if (!workspace) return null;
 
@@ -140,7 +140,7 @@ export class SessionManager {
    * Update surface ratios in a split.
    * Finds the parent split containing the given surfaceId and sets its ratios.
    */
-  setRatios(surfaceId: string, ratios: number[]): MoravecWorkspace | null {
+  setRatios(surfaceId: string, ratios: number[]): CmuxWebWorkspace | null {
     const surface = this.surfaces.get(surfaceId);
     if (!surface) return null;
 
@@ -181,11 +181,11 @@ export class SessionManager {
 
   // --- Getters ---
 
-  getWorkspace(id: string): MoravecWorkspace | undefined {
+  getWorkspace(id: string): CmuxWebWorkspace | undefined {
     return this.workspaces.get(id);
   }
 
-  getSurface(id: string): MoravecSurface | undefined {
+  getSurface(id: string): CmuxWebSurface | undefined {
     return this.surfaces.get(id);
   }
 
@@ -193,7 +193,7 @@ export class SessionManager {
     return this.activeWorkspaceId;
   }
 
-  getAllWorkspaces(): MoravecWorkspace[] {
+  getAllWorkspaces(): CmuxWebWorkspace[] {
     return Array.from(this.workspaces.values());
   }
 

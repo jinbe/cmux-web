@@ -1,5 +1,5 @@
 /**
- * Moravec web client — main application entry point.
+ * cmux-web client — main application entry point.
  * Orchestrates WebSocket connection, workspace management, and layout rendering.
  * Supports mobile with slide-over sidebar, toolbar, and single-pane mode.
  */
@@ -538,10 +538,10 @@ function handleKeyDown(e) {
 // --- Boot ---
 
 init().catch((err) => {
-  console.error("[moravec] Failed to initialise:", err);
+  console.error("[cmux-web] Failed to initialise:", err);
   document.body.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f7768e;font-family:monospace;font-size:16px;padding:20px;text-align:center;">
-      Failed to connect to moravec server.<br/>Is it running?
+      Failed to connect to cmux-web server.<br/>Is it running?
     </div>
   `;
 });

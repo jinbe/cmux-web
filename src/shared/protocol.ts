@@ -1,5 +1,5 @@
 /**
- * Shared protocol types for moravec.
+ * Shared protocol types for cmux-web.
  *
  * WebSocket messages between server and client use newline-delimited JSON,
  * matching cmux's v2 protocol style for compatibility.
@@ -7,15 +7,15 @@
 
 // --- Session/pane model ---
 
-export interface MoravecWorkspace {
+export interface CmuxWebWorkspace {
   id: string;
   name: string;
-  surfaces: MoravecSurface[];
+  surfaces: CmuxWebSurface[];
   layout: SplitLayout;
   createdAt: number;
 }
 
-export interface MoravecSurface {
+export interface CmuxWebSurface {
   id: string;
   workspaceId: string;
   title: string;
@@ -57,8 +57,8 @@ export type ServerMessage =
   | { type: "surface.output"; surfaceId: string; data: string }
   | { type: "surface.exit"; surfaceId: string; exitCode: number }
   | { type: "surface.title"; surfaceId: string; title: string }
-  | { type: "workspace.updated"; workspace: MoravecWorkspace }
-  | { type: "state.sync"; workspaces: MoravecWorkspace[]; activeWorkspaceId: string | null };
+  | { type: "workspace.updated"; workspace: CmuxWebWorkspace }
+  | { type: "state.sync"; workspaces: CmuxWebWorkspace[]; activeWorkspaceId: string | null };
 
 // --- CLI socket protocol (cmux-compatible) ---
 
@@ -78,5 +78,5 @@ export interface CliResponse {
 // --- Constants ---
 
 export const DEFAULT_PORT = 7681;
-export const DEFAULT_SOCKET_PATH = "/tmp/moravec.sock";
+export const DEFAULT_SOCKET_PATH = "/tmp/cmux-web.sock";
 export const HEARTBEAT_INTERVAL_MS = 30_000;

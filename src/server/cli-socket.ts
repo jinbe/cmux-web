@@ -1,7 +1,7 @@
 /**
  * Unix domain socket server for CLI control.
  * Speaks the same newline-delimited JSON protocol as cmux v2,
- * so existing cmux tooling can talk to moravec.
+ * so existing cmux tooling can talk to cmux-web.
  */
 
 import * as net from "node:net";
@@ -38,12 +38,12 @@ export class CliSocket {
       this.server = net.createServer((conn) => this.handleConnection(conn));
 
       this.server.on("error", (err) => {
-        console.error(`[moravec] CLI socket error: ${err.message}`);
+        console.error(`[cmux-web] CLI socket error: ${err.message}`);
         reject(err);
       });
 
       this.server.listen(this.socketPath, () => {
-        console.log(`[moravec] CLI socket listening at ${this.socketPath}`);
+        console.log(`[cmux-web] CLI socket listening at ${this.socketPath}`);
         resolve();
       });
     });

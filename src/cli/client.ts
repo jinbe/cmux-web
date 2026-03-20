@@ -1,5 +1,5 @@
 /**
- * CLI socket client — connects to the moravec Unix domain socket.
+ * CLI socket client — connects to the cmux-web Unix domain socket.
  * cmux-compatible: sends newline-delimited JSON requests.
  */
 
@@ -15,7 +15,7 @@ export interface CliClientOptions {
 const DEFAULT_TIMEOUT_MS = 5000;
 
 /**
- * Send a single request to the moravec socket and return the response.
+ * Send a single request to the cmux-web socket and return the response.
  * Opens a new connection per request (simple, stateless CLI use).
  */
 export async function request(
@@ -23,7 +23,7 @@ export async function request(
   params: Record<string, any> = {},
   options?: CliClientOptions
 ): Promise<any> {
-  const socketPath = options?.socketPath ?? process.env.MORAVEC_SOCKET_PATH ?? DEFAULT_SOCKET_PATH;
+  const socketPath = options?.socketPath ?? process.env.CMUX_WEB_SOCKET_PATH ?? DEFAULT_SOCKET_PATH;
   const timeout = options?.timeout ?? DEFAULT_TIMEOUT_MS;
 
   return new Promise((resolve, reject) => {
@@ -68,7 +68,7 @@ export async function request(
 
     conn.on("error", (err) => {
       clearTimeout(timer);
-      reject(new Error(`Cannot connect to moravec at ${socketPath}: ${err.message}`));
+      reject(new Error(`Cannot connect to cmux-web at ${socketPath}: ${err.message}`));
     });
 
     conn.on("close", () => {
