@@ -33,7 +33,12 @@ async function main(): Promise<void> {
 
   // HTTP server with static file serving
   const app = express();
-  const publicDir = path.resolve(__dirname, "..", "public");
+  // In dev (tsx), __dirname is src/server → go up twice to project root
+  // In prod (built), __dirname is dist/server → go up once to dist/ which has public/
+  const isDev = __dirname.includes("src/server") || __dirname.includes("src\\server");
+  const publicDir = isDev
+    ? path.resolve(__dirname, "..", "..", "public")
+    : path.resolve(__dirname, "..", "public");
   app.use(express.static(publicDir));
 
   // SPA fallback
