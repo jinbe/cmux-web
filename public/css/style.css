@@ -218,6 +218,20 @@ html, body {
   transition: width 0.15s ease, min-width 0.15s ease;
 }
 
+/* --- Floating sidebar restore button (desktop, when collapsed) --- */
+
+#sidebar-restore {
+  display: none;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 50;
+}
+
+#sidebar.collapsed ~ #main-wrapper #sidebar-restore {
+  display: flex;
+}
+
 /* --- Sidebar overlay backdrop (mobile) --- */
 
 #sidebar-backdrop {

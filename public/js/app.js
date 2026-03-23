@@ -70,6 +70,8 @@ async function init() {
   // Desktop: sidebar toggle
   const sidebarToggleBtn = document.getElementById("sidebar-toggle");
   sidebarToggleBtn?.addEventListener("click", toggleDesktopSidebar);
+  const sidebarRestoreBtn = document.getElementById("sidebar-restore");
+  sidebarRestoreBtn?.addEventListener("click", toggleDesktopSidebar);
 
   // Keyboard shortcuts
   document.addEventListener("keydown", handleKeyDown);

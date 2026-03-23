@@ -2,6 +2,20 @@
   "name": "cmux-web",
   "version": "0.1.0",
   "description": "A web-based terminal multiplexer — cmux for the browser",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jinbe/cmux-web.git"
+  },
+  "keywords": [
+    "terminal",
+    "multiplexer",
+    "tmux",
+    "cmux",
+    "web-terminal",
+    "pty",
+    "ghostty"
+  ],
   "type": "module",
   "bin": {
     "cmux-web": "./dist/cli/index.js"
