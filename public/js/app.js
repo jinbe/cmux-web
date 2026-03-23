@@ -67,6 +67,10 @@ async function init() {
     closeSidebar();
   });
 
+  // Desktop: sidebar toggle
+  const sidebarToggleBtn = document.getElementById("sidebar-toggle");
+  sidebarToggleBtn?.addEventListener("click", toggleDesktopSidebar);
+
   // Keyboard shortcuts
   document.addEventListener("keydown", handleKeyDown);
 
@@ -266,6 +270,22 @@ async function selectWorkspace(workspaceId) {
 
 async function closeWorkspace(workspaceId) {
   await ws.request("workspace.close", { workspaceId });
+}
+
+// --- Desktop: Sidebar toggle ---
+
+let desktopSidebarHidden = false;
+
+function toggleDesktopSidebar() {
+  desktopSidebarHidden = !desktopSidebarHidden;
+  sidebarEl.classList.toggle("collapsed", desktopSidebarHidden);
+
+  // Refit terminals after sidebar transition completes
+  setTimeout(() => {
+    for (const renderer of renderers.values()) {
+      renderer.fitAll();
+    }
+  }, 200);
 }
 
 // --- Mobile: Sidebar ---

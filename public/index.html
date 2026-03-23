@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#1a1b26" />
+  <meta name="theme-color" content="#1e1e1e" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/logo.png">
   <title>cmux-web</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -16,11 +19,27 @@
 
     <aside id="sidebar">
       <div id="sidebar-header">
+        <!-- Sidebar toggle icon (panel with left section filled) -->
+        <button id="sidebar-toggle" class="sidebar-icon-btn" title="Toggle sidebar">
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4zm4 0H3v8h3V4z"/>
+          </svg>
+        </button>
         <span class="logo">cmux-web</span>
-        <button id="sidebar-close" class="mobile-only" title="Close sidebar">✕</button>
+        <span class="sidebar-header-spacer"></span>
+        <!-- New workspace button -->
+        <button id="add-workspace" class="sidebar-icon-btn" title="New workspace">
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 3a.5.5 0 01.5.5V7.5H12a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8.5H4a.5.5 0 010-1h3.5V3.5A.5.5 0 018 3z"/>
+          </svg>
+        </button>
+        <button id="sidebar-close" class="mobile-only sidebar-icon-btn" title="Close sidebar">
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path d="M4.646 4.646a.5.5 0 01.708 0L8 7.293l2.646-2.647a.5.5 0 01.708.708L8.707 8l2.647 2.646a.5.5 0 01-.708.708L8 8.707l-2.646 2.647a.5.5 0 01-.708-.708L7.293 8 4.646 5.354a.5.5 0 010-.708z"/>
+          </svg>
+        </button>
       </div>
       <div id="workspace-tabs"></div>
-      <button id="add-workspace" title="New workspace">+ New Workspace</button>
     </aside>
 
     <div id="main-wrapper">

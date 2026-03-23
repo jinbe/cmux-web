@@ -190,8 +190,8 @@ export class LayoutRenderer {
 
     const splitH = document.createElement("span");
     splitH.className = "surface-action";
-    splitH.textContent = "⇥";
     splitH.title = "Split right";
+    splitH.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/><line x1="7" y1="1.5" x2="7" y2="12.5"/></svg>`;
     splitH.addEventListener("click", (e) => {
       e.stopPropagation();
       this.#onSplit(surfaceId, "right");
@@ -199,17 +199,17 @@ export class LayoutRenderer {
 
     const splitV = document.createElement("span");
     splitV.className = "surface-action";
-    splitV.textContent = "⇤";
     splitV.title = "Split down";
+    splitV.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/><line x1="1.5" y1="7" x2="12.5" y2="7"/></svg>`;
     splitV.addEventListener("click", (e) => {
       e.stopPropagation();
       this.#onSplit(surfaceId, "down");
     });
 
     const close = document.createElement("span");
-    close.className = "surface-action";
-    close.textContent = "✕";
+    close.className = "surface-action action-close";
     close.title = "Close";
+    close.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3.5" y1="3.5" x2="10.5" y2="10.5"/><line x1="10.5" y1="3.5" x2="3.5" y2="10.5"/></svg>`;
     close.addEventListener("click", (e) => {
       e.stopPropagation();
       this.#onClose(surfaceId);
@@ -252,28 +252,28 @@ export class LayoutRenderer {
       fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, monospace",
       lineHeight: 1.2,
       theme: {
-        background: "#1a1b26",
-        foreground: "#c0caf5",
-        cursor: "#c0caf5",
-        cursorAccent: "#1a1b26",
-        selectionBackground: "#33467c",
-        selectionForeground: "#c0caf5",
-        black: "#15161e",
+        background: "#1e1e1e",
+        foreground: "#cccccc",
+        cursor: "#cccccc",
+        cursorAccent: "#1e1e1e",
+        selectionBackground: "#3e3e3e",
+        selectionForeground: "#cccccc",
+        black: "#151515",
         red: "#f7768e",
         green: "#9ece6a",
         yellow: "#e0af68",
         blue: "#7aa2f7",
         magenta: "#bb9af7",
         cyan: "#7dcfff",
-        white: "#a9b1d6",
-        brightBlack: "#414868",
+        white: "#bbbbbb",
+        brightBlack: "#555555",
         brightRed: "#f7768e",
         brightGreen: "#9ece6a",
         brightYellow: "#e0af68",
         brightBlue: "#7aa2f7",
         brightMagenta: "#bb9af7",
         brightCyan: "#7dcfff",
-        brightWhite: "#c0caf5",
+        brightWhite: "#cccccc",
       },
       scrollback: 5000,
     });
