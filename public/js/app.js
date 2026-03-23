@@ -9,6 +9,7 @@ import { LayoutRenderer } from "./layout-renderer.js";
 
 // --- Constants ---
 
+// Keep in sync with layout-renderer.js MOBILE_BREAKPOINT_PX and style.css @media (max-width: 768px)
 const MOBILE_BREAKPOINT_PX = 768;
 const SWIPE_THRESHOLD_PX = 50;
 
@@ -304,10 +305,7 @@ function handleActionMenuItem(action) {
   const focusedSurfaceId = renderer?.focusedSurfaceId;
 
   switch (action) {
-    case "new-pane":
-      // On mobile, both split directions behave the same (swipeable single-pane mode)
-      if (focusedSurfaceId) ws.request("surface.split", { surfaceId: focusedSurfaceId, direction: "right" });
-      break;
+    case "new-pane": // On mobile, both split directions behave the same — fall through
     case "split-right":
       if (focusedSurfaceId) ws.request("surface.split", { surfaceId: focusedSurfaceId, direction: "right" });
       break;
@@ -421,8 +419,8 @@ function setupSwipeGestures() {
       return;
     }
 
-    // On mobile: swipe left/right to switch between surfaces
-    if (isMobile() && Math.abs(deltaX) > SWIPE_THRESHOLD_PX && !sidebarOpen) {
+    // Swipe left/right to switch between surfaces (already guarded by isMobile() above)
+    if (Math.abs(deltaX) > SWIPE_THRESHOLD_PX && !sidebarOpen) {
       const wsData = activeWorkspaceId ? workspaces.get(activeWorkspaceId) : null;
       const renderer = renderers.get(activeWorkspaceId);
       if (!wsData || !renderer) return;

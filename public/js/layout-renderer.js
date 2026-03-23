@@ -5,6 +5,7 @@
  * Supports both mouse and touch for resize handles.
  */
 
+// Keep in sync with app.js MOBILE_BREAKPOINT_PX and style.css @media (max-width: 768px)
 const MOBILE_BREAKPOINT_PX = 768;
 const MOBILE_FONT_SIZE = 12;
 const DESKTOP_FONT_SIZE = 13;
