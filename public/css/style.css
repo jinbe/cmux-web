@@ -366,6 +366,12 @@ html, body {
   min-height: 30px;
 }
 
+/* When a single pane is the direct child of a workspace view, fill it */
+.workspace-view > .surface-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
 .surface-wrapper .surface-header {
   display: flex;
   align-items: center;
