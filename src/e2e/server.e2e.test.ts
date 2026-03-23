@@ -3,7 +3,7 @@
  * Tests real WebSocket connections, Unix socket CLI, and PTY processes.
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import express from "express";
 import { createServer } from "node:http";
 import { SessionManager } from "../server/session-manager.js";
@@ -158,9 +158,6 @@ describe("Server E2E Integration", () => {
   let socketPath: string;
 
   beforeAll(async () => {
-    // Use real timers for e2e tests
-    vi.useRealTimers();
-
     // Set up the server components
     port = await getRandomPort();
     socketPath = `/tmp/cmux-web-e2e-${randomUUID()}.sock`;

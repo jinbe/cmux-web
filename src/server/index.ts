@@ -15,10 +15,11 @@ import { SessionManager } from "./session-manager.js";
 import { PtyManager } from "./pty-manager.js";
 import { WsHandler } from "./ws-handler.js";
 import { CliSocket } from "./cli-socket.js";
-import { DEFAULT_PORT, DEFAULT_SOCKET_PATH } from "../shared/protocol.js";
+import { DEFAULT_HOST, DEFAULT_PORT, DEFAULT_SOCKET_PATH } from "../shared/protocol.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const HOST = process.env.CMUX_WEB_HOST ?? DEFAULT_HOST;
 const PORT = parseInt(process.env.CMUX_WEB_PORT ?? String(DEFAULT_PORT), 10);
 const SOCKET_PATH = process.env.CMUX_WEB_SOCKET_PATH ?? DEFAULT_SOCKET_PATH;
 
@@ -59,8 +60,8 @@ async function main(): Promise<void> {
   process.env.CMUX_WEB_SOCKET_PATH = cliSocket.path;
 
   // Start HTTP server
-  httpServer.listen(PORT, () => {
-    console.log(`[cmux-web] Web UI:  http://localhost:${PORT}`);
+  httpServer.listen(PORT, HOST, () => {
+    console.log(`[cmux-web] Web UI:  http://${HOST}:${PORT}`);
     console.log(`[cmux-web] Socket:  ${cliSocket.path}`);
   });
 

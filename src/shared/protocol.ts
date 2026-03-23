@@ -77,6 +77,7 @@ export interface CliResponse {
 
 // --- Constants ---
 
+export const DEFAULT_HOST = "localhost";
 export const DEFAULT_PORT = 7681;
 export const DEFAULT_SOCKET_PATH = "/tmp/cmux-web.sock";
 export const HEARTBEAT_INTERVAL_MS = 30_000;

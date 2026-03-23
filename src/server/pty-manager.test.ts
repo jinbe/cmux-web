@@ -2,7 +2,7 @@
  * Unit tests for PtyManager — PTY process lifecycle and event handling.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { PtyManager } from "./pty-manager.js";
 
 describe("PtyManager", () => {
@@ -54,13 +54,12 @@ describe("PtyManager", () => {
       const instance = manager.spawn("surface-data-test");
 
       // Wait for shell startup output (shells typically emit prompt/banner)
-      await vi.waitFor(
-        () => {
-          expect(dataEvents.length).toBeGreaterThan(0);
-          expect(dataEvents[0].surfaceId).toBe("surface-data-test");
-        },
-        { timeout: 3000 }
-      );
+      const deadline = Date.now() + 3000;
+      while (dataEvents.length === 0 && Date.now() < deadline) {
+        await Bun.sleep(50);
+      }
+      expect(dataEvents.length).toBeGreaterThan(0);
+      expect(dataEvents[0].surfaceId).toBe("surface-data-test");
     });
 
     it("emits exit events when PTY is killed", async () => {
@@ -76,13 +75,12 @@ describe("PtyManager", () => {
       instance.process.kill();
 
       // Wait for the exit event
-      await vi.waitFor(
-        () => {
-          expect(exitEvents.length).toBe(1);
-          expect(exitEvents[0].surfaceId).toBe("surface-exit-test");
-        },
-        { timeout: 2000 }
-      );
+      const deadline = Date.now() + 2000;
+      while (exitEvents.length === 0 && Date.now() < deadline) {
+        await Bun.sleep(50);
+      }
+      expect(exitEvents.length).toBe(1);
+      expect(exitEvents[0].surfaceId).toBe("surface-exit-test");
     });
 
     it("creates multiple independent PTY instances", () => {

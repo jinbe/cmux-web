@@ -1,23 +1,24 @@
 /* cmux-web — web terminal multiplexer styles */
+/* Grey colour scheme matching native cmux app */
 
 :root {
-  --bg-primary: #1a1b26;
-  --bg-secondary: #16161e;
-  --bg-sidebar: #13131a;
-  --bg-surface: #1a1b26;
-  --border-colour: #292e42;
-  --border-active: #7aa2f7;
-  --text-primary: #c0caf5;
-  --text-secondary: #565f89;
-  --text-muted: #3b4261;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252525;
+  --bg-sidebar: #222222;
+  --bg-surface: #1e1e1e;
+  --border-colour: #3a3a3a;
+  --border-active: #888888;
+  --text-primary: #cccccc;
+  --text-secondary: #888888;
+  --text-muted: #555555;
   --accent: #7aa2f7;
   --accent-hover: #89b4fa;
   --danger: #f7768e;
   --success: #9ece6a;
   --warning: #e0af68;
-  --tab-active: #1a1b26;
-  --tab-inactive: #16161e;
-  --resize-handle-size: 4px;
+  --tab-active: #1e1e1e;
+  --tab-inactive: #252525;
+  --resize-handle-size: 1px;
   --sidebar-width: 200px;
   --mobile-toolbar-height: 44px;
   /* Safe area insets for notched devices */
@@ -73,11 +74,11 @@ html, body {
 }
 
 #sidebar-header {
-  padding: 12px 16px;
+  padding: 6px 8px;
   border-bottom: 1px solid var(--border-colour);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 2px;
 }
 
 #sidebar-close {
@@ -90,18 +91,54 @@ html, body {
   line-height: 1;
 }
 
+/* Sidebar header icon buttons */
+.sidebar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border-color: var(--border-colour);
+}
+
+.sidebar-icon-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sidebar-header-spacer {
+  flex: 1;
+}
+
 .logo {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 0.5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
   text-transform: lowercase;
+  margin-left: 4px;
 }
 
 #workspace-tabs {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0;
+  padding: 4px 0;
   /* Smooth scrolling on touch */
   -webkit-overflow-scrolling: touch;
 }
@@ -109,30 +146,30 @@ html, body {
 .workspace-tab {
   display: flex;
   align-items: center;
-  padding: 10px 16px;
+  padding: 6px 12px;
   cursor: pointer;
   color: var(--text-secondary);
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
   border-left: 2px solid transparent;
   gap: 8px;
   user-select: none;
   /* Larger touch target */
-  min-height: 44px;
+  min-height: 32px;
 }
 
 .workspace-tab:hover {
-  background: rgba(122, 162, 247, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-primary);
 }
 
 .workspace-tab:active {
-  background: rgba(122, 162, 247, 0.15);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .workspace-tab.active {
-  background: rgba(122, 162, 247, 0.1);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
-  border-left-color: var(--accent);
+  border-left-color: var(--text-secondary);
 }
 
 .workspace-tab .tab-name {
@@ -140,13 +177,13 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .workspace-tab .tab-index {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
-  min-width: 16px;
+  min-width: 14px;
 }
 
 .workspace-tab .tab-close {
@@ -155,9 +192,8 @@ html, body {
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1;
-  transition: opacity 0.15s, color 0.15s;
-  /* Always visible on touch — see mobile override below */
-  padding: 4px;
+  transition: opacity 0.12s, color 0.12s;
+  padding: 2px 4px;
 }
 
 .workspace-tab:hover .tab-close {
@@ -168,27 +204,32 @@ html, body {
   color: var(--danger);
 }
 
-#add-workspace {
-  margin: 8px 16px 12px;
-  padding: 10px;
-  background: transparent;
-  border: 1px dashed var(--border-colour);
-  color: var(--text-muted);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.15s;
-  min-height: 44px;
+/* --- Sidebar collapsed (desktop) --- */
+
+#sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  border-right: none;
+  overflow: hidden;
+  transition: width 0.15s ease, min-width 0.15s ease;
 }
 
-#add-workspace:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(122, 162, 247, 0.05);
+#sidebar:not(.collapsed) {
+  transition: width 0.15s ease, min-width 0.15s ease;
 }
 
-#add-workspace:active {
-  background: rgba(122, 162, 247, 0.15);
+/* --- Floating sidebar restore button (desktop, when collapsed) --- */
+
+#sidebar-restore {
+  display: none;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 50;
+}
+
+#sidebar.collapsed ~ #main-wrapper #sidebar-restore {
+  display: flex;
 }
 
 /* --- Sidebar overlay backdrop (mobile) --- */
@@ -254,11 +295,16 @@ html, body {
 }
 
 .action-item:active {
-  background: rgba(122, 162, 247, 0.1);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .action-item.action-danger {
   color: var(--danger);
+}
+
+/* "New Pane" is mobile-only; on desktop use Split Right / Split Down */
+.action-item[data-action="new-pane"] {
+  display: none;
 }
 
 .action-icon {
@@ -312,7 +358,7 @@ html, body {
   flex-shrink: 0;
   background: var(--border-colour);
   z-index: 10;
-  transition: background 0.15s;
+  transition: background 0.12s;
   /* Touch-friendly: larger invisible hit area */
   position: relative;
 }
@@ -325,7 +371,7 @@ html, body {
 
 .split-handle:hover,
 .split-handle.dragging {
-  background: var(--accent);
+  background: var(--text-muted);
 }
 
 .split-container.horizontal > .split-handle {
@@ -361,21 +407,28 @@ html, body {
   min-height: 30px;
 }
 
+/* When a single pane is the direct child of a workspace view, fill it */
+.workspace-view > .surface-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
 .surface-wrapper .surface-header {
   display: flex;
   align-items: center;
-  height: 28px;
-  padding: 0 8px;
+  height: 24px;
+  padding: 0 6px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-colour);
   font-size: 11px;
-  color: var(--text-secondary);
-  gap: 8px;
+  color: var(--text-muted);
+  gap: 6px;
   user-select: none;
 }
 
 .surface-wrapper.focused .surface-header {
-  border-bottom-color: var(--accent);
+  color: var(--text-secondary);
+  border-bottom-color: var(--text-muted);
 }
 
 .surface-wrapper .surface-title {
@@ -387,9 +440,9 @@ html, body {
 
 .surface-wrapper .surface-actions {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.12s;
 }
 
 .surface-wrapper:hover .surface-actions {
@@ -397,41 +450,45 @@ html, body {
 }
 
 .surface-wrapper .surface-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 2px;
+  width: 22px;
+  height: 18px;
+  border-radius: 3px;
   color: var(--text-muted);
-  font-size: 12px;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.12s, background 0.12s;
 }
 
 .surface-wrapper .surface-action:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.surface-wrapper .surface-action.action-close:hover {
+  color: var(--danger);
+  background: rgba(247, 118, 142, 0.1);
+}
+
+.surface-wrapper .surface-action svg {
+  width: 14px;
+  height: 14px;
 }
 
 .surface-wrapper .terminal-container {
   position: absolute;
-  top: 28px;
+  top: 24px;
   left: 0;
   right: 0;
   bottom: 0;
   padding: 2px;
 }
 
-/* xterm.js overrides */
-.xterm {
-  height: 100%;
-}
-
-.xterm-viewport {
-  overflow-y: auto !important;
-}
-
 /* --- Scrollbar styling --- */
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -505,12 +562,6 @@ html, body {
     font-size: 13px;
   }
 
-  #add-workspace {
-    font-size: 15px;
-    min-height: 48px;
-    margin-bottom: calc(12px + var(--sab));
-  }
-
   /* --- Mobile toolbar --- */
 
   #mobile-toolbar {
@@ -543,7 +594,7 @@ html, body {
   }
 
   .toolbar-btn:active {
-    background: rgba(122, 162, 247, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
   }
 
@@ -573,7 +624,7 @@ html, body {
     border-radius: 50%;
     background: var(--text-muted);
     cursor: pointer;
-    transition: background 0.15s, transform 0.15s;
+    transition: background 0.12s, transform 0.12s;
     /* Larger touch target via padding */
     padding: 0;
     border: 6px solid transparent;
@@ -581,12 +632,12 @@ html, body {
   }
 
   .surface-pip.active {
-    background: var(--accent);
+    background: var(--text-secondary);
     transform: scale(1.2);
   }
 
   .surface-pip:active {
-    background: var(--accent-hover);
+    background: var(--text-primary);
   }
 
   /* --- Mobile surface header --- */
@@ -602,46 +653,8 @@ html, body {
     top: 0;
   }
 
-  /* --- Mobile split behaviour: stack vertically on narrow screens --- */
+  /* --- Mobile: single-pane mode with swipe between surfaces --- */
 
-  .split-container.horizontal {
-    flex-direction: column;
-  }
-
-  .split-container.horizontal > .split-handle {
-    width: auto;
-    height: var(--resize-handle-size);
-    cursor: row-resize;
-  }
-
-  .split-container.horizontal > .split-handle::after {
-    top: -8px;
-    bottom: -8px;
-    left: 0;
-    right: 0;
-  }
-
-  /* --- Actions menu positioning --- */
-
-  #actions-menu {
-    top: calc(var(--mobile-toolbar-height) + var(--sat) + 4px);
-    right: 8px;
-  }
-
-  /* --- Adjust workspace container for safe areas --- */
-
-  #workspace-container {
-    padding-bottom: var(--sab);
-  }
-}
-
-/* ============================================================
-   SMALL MOBILE STYLES (< 480px)
-   — Single pane view with swipe between surfaces
-   ============================================================ */
-
-@media (max-width: 480px) {
-  /* On very small screens, show only the focused pane */
   body.mobile-single-pane .split-container {
     flex-direction: column;
   }
@@ -667,6 +680,29 @@ html, body {
   body.mobile-single-pane .split-container > .split-container.mobile-visible {
     display: flex;
     flex: 1 1 100% !important;
+  }
+
+  /* On mobile: show "New Pane", hide separate Split Right / Split Down */
+  .action-item[data-action="new-pane"] {
+    display: flex;
+  }
+
+  .action-item[data-action="split-right"],
+  .action-item[data-action="split-down"] {
+    display: none;
+  }
+
+  /* --- Actions menu positioning --- */
+
+  #actions-menu {
+    top: calc(var(--mobile-toolbar-height) + var(--sat) + 4px);
+    right: 8px;
+  }
+
+  /* --- Adjust workspace container for safe areas --- */
+
+  #workspace-container {
+    padding-bottom: var(--sab);
   }
 }
 
@@ -696,7 +732,7 @@ html, body {
 @media (min-width: 769px) and (max-width: 1024px) {
   :root {
     --sidebar-width: 180px;
-    --resize-handle-size: 6px;
+    --resize-handle-size: 4px;
   }
 
   .surface-wrapper .surface-action {

@@ -3,7 +3,7 @@
  * Each surface gets its own PTY instance.
  */
 
-import * as pty from "node-pty";
+import { spawn as ptySpawn, type IPty } from "bun-pty";
 import { EventEmitter } from "node:events";
 
 const DEFAULT_SHELL = process.env.SHELL || "/bin/bash";
@@ -12,7 +12,7 @@ const DEFAULT_ROWS = 30;
 
 export interface PtyInstance {
   id: string;
-  process: pty.IPty;
+  process: IPty;
   cols: number;
   rows: number;
 }
@@ -35,7 +35,7 @@ export class PtyManager extends EventEmitter {
       COLORTERM: "truecolor",
     };
 
-    const proc = pty.spawn(DEFAULT_SHELL, [], {
+    const proc = ptySpawn(DEFAULT_SHELL, [], {
       name: "xterm-256color",
       cols,
       rows,

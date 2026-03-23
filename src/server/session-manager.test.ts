@@ -2,7 +2,7 @@
  * Tests for SessionManager — workspace and layout state management.
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "bun:test";
 import { SessionManager } from "./session-manager.js";
 
 describe("SessionManager", () => {

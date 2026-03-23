@@ -5,12 +5,12 @@
  */
 
 import { WsClient } from "./ws-client.js";
-import { LayoutRenderer } from "./layout-renderer.js";
+import { LayoutRenderer, initGhostty } from "./layout-renderer.js";
 
 // --- Constants ---
 
+// Keep in sync with layout-renderer.js MOBILE_BREAKPOINT_PX and style.css @media (max-width: 768px)
 const MOBILE_BREAKPOINT_PX = 768;
-const SMALL_MOBILE_BREAKPOINT_PX = 480;
 const SWIPE_THRESHOLD_PX = 50;
 
 // --- State ---
@@ -46,13 +46,12 @@ function isMobile() {
   return window.innerWidth <= MOBILE_BREAKPOINT_PX;
 }
 
-function isSmallMobile() {
-  return window.innerWidth <= SMALL_MOBILE_BREAKPOINT_PX;
-}
-
 // --- Initialise ---
 
 async function init() {
+  // Initialise ghostty-web WASM before connecting
+  await initGhostty();
+  
   await ws.connect();
 
   // Wire up server events
@@ -67,6 +66,12 @@ async function init() {
     createWorkspace();
     closeSidebar();
   });
+
+  // Desktop: sidebar toggle
+  const sidebarToggleBtn = document.getElementById("sidebar-toggle");
+  sidebarToggleBtn?.addEventListener("click", toggleDesktopSidebar);
+  const sidebarRestoreBtn = document.getElementById("sidebar-restore");
+  sidebarRestoreBtn?.addEventListener("click", toggleDesktopSidebar);
 
   // Keyboard shortcuts
   document.addEventListener("keydown", handleKeyDown);
@@ -217,7 +222,7 @@ function renderWorkspace(workspaceId) {
       },
       onFocus: (surfaceId) => {
         updateMobileToolbar();
-        if (isSmallMobile()) {
+        if (isMobile()) {
           updateSinglePaneVisibility(workspaceId, surfaceId);
         }
       },
@@ -230,8 +235,8 @@ function renderWorkspace(workspaceId) {
 
   renderer.render(viewEl, wsData.layout, wsData.surfaces);
 
-  // On small mobile, ensure single-pane mode is applied
-  if (isSmallMobile() && workspaceId === activeWorkspaceId) {
+  // On mobile, ensure single-pane mode is applied
+  if (isMobile() && workspaceId === activeWorkspaceId) {
     const focusedId = renderer.focusedSurfaceId;
     if (focusedId) {
       updateSinglePaneVisibility(workspaceId, focusedId);
@@ -267,6 +272,22 @@ async function selectWorkspace(workspaceId) {
 
 async function closeWorkspace(workspaceId) {
   await ws.request("workspace.close", { workspaceId });
+}
+
+// --- Desktop: Sidebar toggle ---
+
+let desktopSidebarHidden = false;
+
+function toggleDesktopSidebar() {
+  desktopSidebarHidden = !desktopSidebarHidden;
+  sidebarEl.classList.toggle("collapsed", desktopSidebarHidden);
+
+  // Refit terminals after sidebar transition completes
+  setTimeout(() => {
+    for (const renderer of renderers.values()) {
+      renderer.fitAll();
+    }
+  }, 200);
 }
 
 // --- Mobile: Sidebar ---
@@ -309,6 +330,7 @@ function handleActionMenuItem(action) {
   const focusedSurfaceId = renderer?.focusedSurfaceId;
 
   switch (action) {
+    case "new-pane": // On mobile, both split directions behave the same — fall through
     case "split-right":
       if (focusedSurfaceId) ws.request("surface.split", { surfaceId: focusedSurfaceId, direction: "right" });
       break;
@@ -344,7 +366,7 @@ function updateMobileToolbar() {
       pip.title = surface.title;
       pip.addEventListener("click", () => {
         renderer?.focus(surface.id);
-        if (isSmallMobile()) {
+        if (isMobile()) {
           updateSinglePaneVisibility(activeWorkspaceId, surface.id);
         }
         updateMobileToolbar();
@@ -380,7 +402,7 @@ function updateSinglePaneVisibility(workspaceId, focusedSurfaceId) {
 }
 
 function updateMobileState() {
-  if (isSmallMobile()) {
+  if (isMobile()) {
     document.body.classList.add("mobile-single-pane");
   } else {
     document.body.classList.remove("mobile-single-pane");
@@ -422,8 +444,8 @@ function setupSwipeGestures() {
       return;
     }
 
-    // On small mobile: swipe left/right to switch between surfaces
-    if (isSmallMobile() && Math.abs(deltaX) > SWIPE_THRESHOLD_PX && !sidebarOpen) {
+    // Swipe left/right to switch between surfaces (already guarded by isMobile() above)
+    if (Math.abs(deltaX) > SWIPE_THRESHOLD_PX && !sidebarOpen) {
       const wsData = activeWorkspaceId ? workspaces.get(activeWorkspaceId) : null;
       const renderer = renderers.get(activeWorkspaceId);
       if (!wsData || !renderer) return;
