@@ -10,7 +10,6 @@ import { LayoutRenderer } from "./layout-renderer.js";
 // --- Constants ---
 
 const MOBILE_BREAKPOINT_PX = 768;
-const SMALL_MOBILE_BREAKPOINT_PX = 480;
 const SWIPE_THRESHOLD_PX = 50;
 
 // --- State ---
@@ -44,10 +43,6 @@ const ws = new WsClient();
 
 function isMobile() {
   return window.innerWidth <= MOBILE_BREAKPOINT_PX;
-}
-
-function isSmallMobile() {
-  return window.innerWidth <= SMALL_MOBILE_BREAKPOINT_PX;
 }
 
 // --- Initialise ---
@@ -217,7 +212,7 @@ function renderWorkspace(workspaceId) {
       },
       onFocus: (surfaceId) => {
         updateMobileToolbar();
-        if (isSmallMobile()) {
+        if (isMobile()) {
           updateSinglePaneVisibility(workspaceId, surfaceId);
         }
       },
@@ -230,8 +225,8 @@ function renderWorkspace(workspaceId) {
 
   renderer.render(viewEl, wsData.layout, wsData.surfaces);
 
-  // On small mobile, ensure single-pane mode is applied
-  if (isSmallMobile() && workspaceId === activeWorkspaceId) {
+  // On mobile, ensure single-pane mode is applied
+  if (isMobile() && workspaceId === activeWorkspaceId) {
     const focusedId = renderer.focusedSurfaceId;
     if (focusedId) {
       updateSinglePaneVisibility(workspaceId, focusedId);
@@ -309,6 +304,10 @@ function handleActionMenuItem(action) {
   const focusedSurfaceId = renderer?.focusedSurfaceId;
 
   switch (action) {
+    case "new-pane":
+      // On mobile, both split directions behave the same (swipeable single-pane mode)
+      if (focusedSurfaceId) ws.request("surface.split", { surfaceId: focusedSurfaceId, direction: "right" });
+      break;
     case "split-right":
       if (focusedSurfaceId) ws.request("surface.split", { surfaceId: focusedSurfaceId, direction: "right" });
       break;
@@ -344,7 +343,7 @@ function updateMobileToolbar() {
       pip.title = surface.title;
       pip.addEventListener("click", () => {
         renderer?.focus(surface.id);
-        if (isSmallMobile()) {
+        if (isMobile()) {
           updateSinglePaneVisibility(activeWorkspaceId, surface.id);
         }
         updateMobileToolbar();
@@ -380,7 +379,7 @@ function updateSinglePaneVisibility(workspaceId, focusedSurfaceId) {
 }
 
 function updateMobileState() {
-  if (isSmallMobile()) {
+  if (isMobile()) {
     document.body.classList.add("mobile-single-pane");
   } else {
     document.body.classList.remove("mobile-single-pane");
@@ -422,8 +421,8 @@ function setupSwipeGestures() {
       return;
     }
 
-    // On small mobile: swipe left/right to switch between surfaces
-    if (isSmallMobile() && Math.abs(deltaX) > SWIPE_THRESHOLD_PX && !sidebarOpen) {
+    // On mobile: swipe left/right to switch between surfaces
+    if (isMobile() && Math.abs(deltaX) > SWIPE_THRESHOLD_PX && !sidebarOpen) {
       const wsData = activeWorkspaceId ? workspaces.get(activeWorkspaceId) : null;
       const renderer = renderers.get(activeWorkspaceId);
       if (!wsData || !renderer) return;

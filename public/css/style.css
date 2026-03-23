@@ -261,6 +261,11 @@ html, body {
   color: var(--danger);
 }
 
+/* "New Pane" is mobile-only; on desktop use Split Right / Split Down */
+.action-item[data-action="new-pane"] {
+  display: none;
+}
+
 .action-icon {
   width: 20px;
   text-align: center;
@@ -602,46 +607,8 @@ html, body {
     top: 0;
   }
 
-  /* --- Mobile split behaviour: stack vertically on narrow screens --- */
+  /* --- Mobile: single-pane mode with swipe between surfaces --- */
 
-  .split-container.horizontal {
-    flex-direction: column;
-  }
-
-  .split-container.horizontal > .split-handle {
-    width: auto;
-    height: var(--resize-handle-size);
-    cursor: row-resize;
-  }
-
-  .split-container.horizontal > .split-handle::after {
-    top: -8px;
-    bottom: -8px;
-    left: 0;
-    right: 0;
-  }
-
-  /* --- Actions menu positioning --- */
-
-  #actions-menu {
-    top: calc(var(--mobile-toolbar-height) + var(--sat) + 4px);
-    right: 8px;
-  }
-
-  /* --- Adjust workspace container for safe areas --- */
-
-  #workspace-container {
-    padding-bottom: var(--sab);
-  }
-}
-
-/* ============================================================
-   SMALL MOBILE STYLES (< 480px)
-   — Single pane view with swipe between surfaces
-   ============================================================ */
-
-@media (max-width: 480px) {
-  /* On very small screens, show only the focused pane */
   body.mobile-single-pane .split-container {
     flex-direction: column;
   }
@@ -667,6 +634,29 @@ html, body {
   body.mobile-single-pane .split-container > .split-container.mobile-visible {
     display: flex;
     flex: 1 1 100% !important;
+  }
+
+  /* On mobile: show "New Pane", hide separate Split Right / Split Down */
+  .action-item[data-action="new-pane"] {
+    display: flex;
+  }
+
+  .action-item[data-action="split-right"],
+  .action-item[data-action="split-down"] {
+    display: none;
+  }
+
+  /* --- Actions menu positioning --- */
+
+  #actions-menu {
+    top: calc(var(--mobile-toolbar-height) + var(--sat) + 4px);
+    right: 8px;
+  }
+
+  /* --- Adjust workspace container for safe areas --- */
+
+  #workspace-container {
+    padding-bottom: var(--sab);
   }
 }
 
