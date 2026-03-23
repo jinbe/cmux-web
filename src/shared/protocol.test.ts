@@ -2,7 +2,7 @@
  * Unit tests for shared protocol constants and types.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "bun:test";
 import {
   DEFAULT_PORT,
   DEFAULT_SOCKET_PATH,

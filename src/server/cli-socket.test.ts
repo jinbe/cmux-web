@@ -2,7 +2,7 @@
  * Unit tests for CliSocket — Unix domain socket CLI interface.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { CliSocket } from "./cli-socket.js";
 import { SessionManager } from "./session-manager.js";
 import { EventEmitter } from "node:events";
