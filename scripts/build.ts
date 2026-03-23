@@ -58,6 +58,16 @@ async function build() {
   const publicDest = path.join(root, "dist/public");
   fs.cpSync(publicSrc, publicDest, { recursive: true });
 
+  // Copy ghostty-web files
+  const ghosttyWebSrc = path.join(root, "node_modules/ghostty-web/dist/ghostty-web.js");
+  const ghosttyWebDest = path.join(root, "dist/public/lib/ghostty-web.js");
+  fs.mkdirSync(path.dirname(ghosttyWebDest), { recursive: true });
+  fs.copyFileSync(ghosttyWebSrc, ghosttyWebDest);
+
+  const ghosttyWasmSrc = path.join(root, "node_modules/ghostty-web/dist/ghostty-vt.wasm");
+  const ghosttyWasmDest = path.join(root, "dist/public/ghostty-vt.wasm");
+  fs.copyFileSync(ghosttyWasmSrc, ghosttyWasmDest);
+
   console.log("Build complete!");
 }
 

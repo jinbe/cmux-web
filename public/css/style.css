@@ -430,15 +430,6 @@ html, body {
   padding: 2px;
 }
 
-/* xterm.js overrides */
-.xterm {
-  height: 100%;
-}
-
-.xterm-viewport {
-  overflow-y: auto !important;
-}
-
 /* --- Scrollbar styling --- */
 
 ::-webkit-scrollbar {

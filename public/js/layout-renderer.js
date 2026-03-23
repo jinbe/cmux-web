@@ -1,9 +1,23 @@
 /**
  * Layout renderer — turns a SplitLayout tree into resizable DOM panes.
- * Each leaf node gets an xterm.js terminal instance.
+ * Each leaf node gets a ghostty-web terminal instance.
  *
  * Supports both mouse and touch for resize handles.
  */
+
+import { init, Terminal, FitAddon } from '/lib/ghostty-web.js';
+
+let ghosttyReady = false;
+
+/**
+ * Initialise ghostty-web WASM. Must be called before creating terminals.
+ */
+export async function initGhostty() {
+  if (!ghosttyReady) {
+    await init();
+    ghosttyReady = true;
+  }
+}
 
 // Keep in sync with app.js MOBILE_BREAKPOINT_PX and style.css @media (max-width: 768px)
 const MOBILE_BREAKPOINT_PX = 768;
@@ -229,7 +243,6 @@ export class LayoutRenderer {
   }
 
   #createTerminal(surfaceId, container) {
-    const Terminal = window.Terminal;
     const fontSize = this.#isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
 
     const terminal = new Terminal({
@@ -263,16 +276,10 @@ export class LayoutRenderer {
         brightWhite: "#c0caf5",
       },
       scrollback: 5000,
-      allowProposedApi: true,
-      // Mobile: allow touch scrolling in terminal
-      overviewRulerWidth: 0,
     });
 
-    const fitAddon = new window.FitAddon.FitAddon();
+    const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
-
-    const webLinksAddon = new window.WebLinksAddon.WebLinksAddon();
-    terminal.loadAddon(webLinksAddon);
 
     terminal.open(container);
 

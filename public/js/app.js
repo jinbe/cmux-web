@@ -5,7 +5,7 @@
  */
 
 import { WsClient } from "./ws-client.js";
-import { LayoutRenderer } from "./layout-renderer.js";
+import { LayoutRenderer, initGhostty } from "./layout-renderer.js";
 
 // --- Constants ---
 
@@ -49,6 +49,9 @@ function isMobile() {
 // --- Initialise ---
 
 async function init() {
+  // Initialise ghostty-web WASM before connecting
+  await initGhostty();
+  
   await ws.connect();
 
   // Wire up server events
